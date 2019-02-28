@@ -162,23 +162,27 @@ if __name__ == '__main__':
     pts = np.random.random((32, 512, 64)).astype('float32')
     tmp1 = np.random.random((32, 512, 3)).astype('float32')
     tmp2 = np.random.random((32, 128, 3)).astype('float32')
-    with tf.device('/gpu:1'):
+    with tf.device('/gpu:0'):
         points = tf.constant(pts)
         xyz1 = tf.constant(tmp1)
         xyz2 = tf.constant(tmp2)
         radius = 0.1
         nsample = 64
         if knn:
+            print('#1')
             _, idx = knn_point(nsample, xyz1, xyz2)
+            print('#2')
             grouped_points = group_point(points, idx)
         else:
             idx, _ = query_ball_point(radius, nsample, xyz1, xyz2)
             grouped_points = group_point(points, idx)
             # grouped_points_grad = tf.ones_like(grouped_points)
             # points_grad = tf.gradients(grouped_points, points, grouped_points_grad)
+    print('#3')
     with tf.Session('') as sess:
         now = time.time()
-        for _ in range(100):
+        for i in range(100):
+            print('Run %d' % i)
             ret = sess.run(grouped_points)
         print((time.time() - now))
         print((ret.shape, ret.dtype))
